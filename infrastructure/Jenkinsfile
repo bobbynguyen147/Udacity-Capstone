@@ -9,13 +9,10 @@ pipeline {
 						eksctl create cluster \
 						--name udacitycluster \
 						--version 1.23 \
-						--nodegroup-name standard-workers \
 						--node-type t2.small \
-						--managed=false \
 						--nodes 2 \
 						--nodes-min 1 \
 						--nodes-max 2 \
-						--node-ami auto \
 						--region us-east-1 \
 						--zones us-east-1a \
 						--zones us-east-1b
