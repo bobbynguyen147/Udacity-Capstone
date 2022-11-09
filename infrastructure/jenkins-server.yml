@@ -4,14 +4,14 @@ Parameters:
     EnvironmentName:
         Description: This name will be prefixed to all the resources.
         Type: String
-    VpcCIDR:
-        Description: CIDR for jenkins server VPC
+    VpcID:
+        Description: VPC id
         Type: String
-        Default: 10.0.0.0/16
-    PublicSubnetCIDR:
-        Description: CIDR for jenkins server public subnet
+        Default: vpc-0a5a396885755e88d
+    PublicSubnetID:
+        Description: public subnet id
         Type: String
-        Default: 10.0.0.0/24
+        Default: subnet-0bb1181d59b53c599
     ServerAMIId:
         Description: AMI ID for EC2 instances.
         Type: String
@@ -20,76 +20,6 @@ Parameters:
         Type: String
 
 Resources:
-    ## VPC ##
-
-    #VPC for Udagram App
-    VPC:
-        Type: AWS::EC2::VPC
-        Properties:
-            CidrBlock: !Ref VpcCIDR
-            EnableDnsHostnames: true
-            Tags:
-                - Key: Name
-                  Value: !Ref EnvironmentName
-
-    ## Internet Gateway ##
-
-    #Internet Gateway that provides bi-directional access for the resources within VPC
-    InternetGateway:
-        Type: AWS::EC2::InternetGateway
-        Properties:
-            Tags:
-                - Key: Name
-                  Value: !Ref EnvironmentName
-
-    # Attachment of Internet Gateway to VPC
-    InternetGatewayAttachment:
-        Type: AWS::EC2::VPCGatewayAttachment
-        Properties:
-            InternetGatewayId: !Ref InternetGateway
-            VpcId: !Ref VPC
-
-    ## Subnets ##
-
-    #First public subnet on one AZ
-    PublicSubnet:
-        Type: AWS::EC2::Subnet
-        Properties:
-            VpcId: !Ref VPC
-            AvailabilityZone: !Select [0, !GetAZs ""]
-            CidrBlock: !Ref PublicSubnetCIDR
-            MapPublicIpOnLaunch: true
-            Tags:
-                - Key: Name
-                  Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
-
-    ## Routing Configuration ##
-
-    # Public route table attached with VPC
-    PublicRouteTable:
-        Type: AWS::EC2::RouteTable
-        Properties:
-            VpcId: !Ref VPC
-            Tags:
-                - Key: Name
-                  Value: !Sub ${EnvironmentName} Public Routes
-
-    # Rule that directs all traffic to Internet Gateway
-    DefaultPublicRoute:
-        Type: AWS::EC2::Route
-        DependsOn: InternetGatewayAttachment
-        Properties:
-            RouteTableId: !Ref PublicRouteTable
-            DestinationCidrBlock: 0.0.0.0/0
-            GatewayId: !Ref InternetGateway
-
-    # Associating public route table with first public subnet
-    PublicSubnetRouteTableAssociation:
-        Type: AWS::EC2::SubnetRouteTableAssociation
-        Properties:
-            RouteTableId: !Ref PublicRouteTable
-            SubnetId: !Ref PublicSubnet
-
     ## Security Group ##
 
     # Security Group for Jenkins Server
@@ -97,7 +27,7 @@ Resources:
         Type: AWS::EC2::SecurityGroup
         Properties:
             GroupDescription: Allow http to our hosts and SSH from local only
-            VpcId: !Ref VPC
+            VpcId: !Ref VpcID
             SecurityGroupIngress: #Allowing inbound traffic on port 80 for accessing application and on port 22 for SSH in case of troubleshooting any issues.
                 - IpProtocol: tcp
                   FromPort: 8080
@@ -162,7 +92,11 @@ Resources:
                 - Ref: JenkinsServerSecurityGroup
             InstanceType: !Ref InstanceType
             KeyName: udacity-capstone
-
+            BlockDeviceMappings:
+                - DeviceName: /dev/sda1
+                  Ebs:
+                      VolumeSize: '10'
+                      VolumeType: gp3
     ## Auto Scaling Group ##
 
     # Auto scaling group for Udagram App
@@ -170,7 +104,7 @@ Resources:
         Type: AWS::AutoScaling::AutoScalingGroup
         Properties:
             VPCZoneIdentifier:
-                - !Ref PublicSubnet
+                - !Ref PublicSubnetID
             LaunchConfigurationName:
                 Ref: JenkinsServerLaunchConfig
             MinSize: "1"
