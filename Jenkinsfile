@@ -7,12 +7,12 @@ pipeline {
 				sh 'tidy -q -e *.html'
 			}
 		}
-		
+
 		stage('Build Docker Image') {
 			steps {
 				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
 					sh '''
-						docker build -t sourabh385/udacity-capstone .
+						docker build -t bobbynguyen147/udacity-devops-capstone:latest .
 					'''
 				}
 			}
@@ -23,7 +23,7 @@ pipeline {
 				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
 					sh '''
 						docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-						docker push sourabh385/udacity-capstone
+						docker push bobbynguyen147/udacity-devops-capstone:latest
 					'''
 				}
 			}
@@ -33,7 +33,7 @@ pipeline {
 			steps {
 				withAWS(region:'us-east-1', credentials:'aws_credentials') {
 					sh '''
-						kubectl config use-context arn:aws:eks:us-east-1:047033459652:cluster/udacitycluster
+						kubectl config use-context arn:aws:eks:us-east-1:944124402221:cluster/udacitycluster
 					'''
 				}
 			}
