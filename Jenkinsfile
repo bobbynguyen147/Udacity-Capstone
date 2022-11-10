@@ -33,6 +33,7 @@ pipeline {
 			steps {
 				withAWS(region:'us-east-1', credentials:'aws_credentials') {
 					sh '''
+					    aws eks --region us-east-1 update-kubeconfig --name udacitycluster
 						kubectl config use-context arn:aws:eks:us-east-1:944124402221:cluster/udacitycluster
 					'''
 				}
