@@ -1,3 +1,5 @@
+# Click here >>> [Capstone-project-website](http://ad0daf52c00ea46e286effafcd88953f-34782981.us-east-1.elb.amazonaws.com:8000/)
+
 # Udacity Cloud DevOps Capstone Project
 
 This is final project of Udacity Cloud DevOps Engineer Nanodegree Program.
@@ -56,15 +58,10 @@ This file contains the steps of CICD pipeline of application.
 -   Create Jenkins server using cloud formation template.
 
 ```
-$ sh scripts/create.sh jenkins-stack infrastructure/jenkins-server.yml infrastructure/jenkins-server-parameters.json
+$ sh ./create.sh jenkins-stack infrastructure/jenkins-server.yml infrastructure/jenkins-server-parameters.json
 ```
 
 -   Following resources are created after executing above command:
-    -   VPC
-    -   Subnet
-    -   Route Table
-    -   Route
-    -   Internet Gateway
     -   Security Group
     -   Launch Configuration
     -   Auto Scaling Group
@@ -82,21 +79,21 @@ $ sh scripts/create.sh jenkins-stack infrastructure/jenkins-server.yml infrastru
     -   [Pipeline: AWS Steps](https://plugins.jenkins.io/pipeline-aws/)
     -   [Blue Ocean](https://plugins.jenkins.io/blueocean/)
 -   Add AWS credentials in Jenkins.
--   Create new item in Jenkins of type `Pipeline` of name let's say `infra-pipeline`
--   In the configuration page of `infra-pipeline`, provide the GitHub repository as `https://github.com/sourabhgupta385/udacity-cloud-devops-capstone-project` and script path as `infrastructure/Jenkinsfile`
+-   Create new item in Jenkins of type `Pipeline` of name let's say `infra-eks`
+-   In the configuration page of `infra-eks`, provide the GitHub repository as `https://github.com/bobbynguyen147/Udacity-Capstone` and script path as `infrastructure/Jenkinsfile`
 -   Apply and save the pipeline.
 -   Click on `Build Now` to trigger the pipeline.
--   `infra-pipeline` does the following steps:
+-   `infra-eks` does the following steps:
     -   Creates a EKS cluster
     -   Configures kubectl so that we can connect to EKS cluster
     -   Note: This pipeline will take around 15-20 minutes to complete.
 -   Add Docker Hub credentials in Jenkins so that we can push docker image to Docker Hub.
--   Create new item in Jenkins of type `Pipeline` of name let's say `udacity-capstone-website-pipeline`
--   In the configuration page of `udacity-capstone-website-pipeline`, provide the GitHub repository as `https://github.com/sourabhgupta385/udacity-cloud-devops-capstone-project` and script path as `Jenkinsfile`
+-   Create new item in Jenkins of type `Pipeline` of name let's say `deploy-eks`
+-   In the configuration page of `deploy-eks`, provide the GitHub repository as `https://github.com/bobbynguyen147/Udacity-Capstone` and script path as `Jenkinsfile`
 -   Apply and save the pipeline.
 -   Click on `Build Now` to trigger the pipeline
 -   Once the pipeline passes with stage name `Create Service Pointing to Blue Replication Controller`, go to Load Balancer page in AWS console and look for DNS name
--   DNS name will be something like `a009764aca96411ea97070ad08595ea3-2077112107.us-east-1.elb.amazonaws.com`
+-   DNS name will be something like `ad0daf52c00ea46e286effafcd88953f-34782981.us-east-1.elb.amazonaws.com`
 -   In the browser, open a new tab and hit link as `http://<DNS_NAME>:8000/`. It will show the capstone project website.
 -   Approve the pipeline to proceed to next stage
 -   Once the pipeline is complete, service will be pointing to pods that has label as `app=green`
